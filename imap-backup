@@ -83,7 +83,7 @@ const getMailboxPath = mailbox => {
 
 useImap(imap => {
   return forEachMailbox(imap, mailbox => {
-    if (mailbox.name != 'INBOX') { // TODO Remove me
+    if (!(config.mailboxes || []).includes(mailbox.name)) {
       console.log(`Skipping ${mailbox.name}...`);
       return;
     }
