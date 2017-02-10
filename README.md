@@ -11,3 +11,4 @@ $ ./imap-backup
 
 - See `ag '\WTODO\W'`
 - Make code less confusing
+- Avoid fetching messages already saved 

@@ -88,6 +88,8 @@ useImap(imap => {
       return;
     }
     return forEachMailboxMessage(imap, mailbox, message => {
+      // TODO Is the message UID (in combination with its mailbox) supposed to 
+      // not be ever reused?
       const messageFile = `backup/${getMailboxPath(mailbox)}/${message.uid}.eml`; 
       console.log(`Saving message to ${messageFile}...`);
       return mkdirp(path.dirname(messageFile))
