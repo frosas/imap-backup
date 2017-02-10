@@ -2,6 +2,7 @@
   "private": true,
   "dependencies": {
     "bluebird": "^3.4.7",
-    "imap": "^0.8.19"
+    "imap": "^0.8.19",
+    "mkdirp": "^0.5.1"
   }
 }
