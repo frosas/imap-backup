@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "imap": "^0.8.19"
+  }
+}
