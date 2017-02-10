@@ -66,11 +66,20 @@ const forEachMailboxMessage = (imap, mailbox, callback) => {
   });
 };
 
+const getMailboxPath = mailbox => {
+  let path = '';
+  for (let current = mailbox; current; current = mailbox.parent) {
+    if (path) path = `/${path}`;
+    path = `${current.name}${path}`; // TODO Sanitize
+  }
+  return path;
+};
+
 useImap(imap => {
   return forEachMailbox(imap, mailbox => {
     if (mailbox.name != 'INBOX') return;
     return forEachMailboxMessage(imap, mailbox, message => {
-      console.log('message', message);
+      console.log('message', message, getMailboxPath(mailbox));
     });
   });
 });
