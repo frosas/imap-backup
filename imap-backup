@@ -83,7 +83,10 @@ const getMailboxPath = mailbox => {
 
 useImap(imap => {
   return forEachMailbox(imap, mailbox => {
-    if (mailbox.name != 'INBOX') return; // TODO Remove me
+    if (mailbox.name != 'INBOX') { // TODO Remove me
+      console.log(`Skipping ${mailbox.name}...`);
+      return;
+    }
     return forEachMailboxMessage(imap, mailbox, message => {
       const messageFile = `backup/${getMailboxPath(mailbox)}/${message.uid}.eml`; 
       console.log(`Saving message to ${messageFile}...`);
