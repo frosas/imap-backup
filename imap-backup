@@ -20,6 +20,7 @@ const useImap = callback => {
   });
 };
 
+// TODO Iterate recursively
 const forEachMailbox = (imap, callback) => {
   console.log(`Obtaining mailboxes...`);
   return imap.getBoxesAsync().then(mailboxes => {
@@ -77,7 +78,7 @@ const getMailboxPath = mailbox => {
 
 useImap(imap => {
   return forEachMailbox(imap, mailbox => {
-    if (mailbox.name != 'INBOX') return;
+    if (mailbox.name != 'INBOX') return; // TODO Remove me
     return forEachMailboxMessage(imap, mailbox, message => {
       console.log('message', message, getMailboxPath(mailbox));
     });
