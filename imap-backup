@@ -20,8 +20,11 @@ const saveMessage = message => {
     () => {
       return message.fetchBody().then(body => {
         console.log(`Saving message to "${backupPath}"...`);
-        return mkdirp(path.dirname(backupPath))
-          .then(() => fs.writeFileAsync(backupPath, body));
+        return mkdirp(path.dirname(backupPath)).then(() => {
+          return new Promise(resolve => {
+            body.on('end', resolve).pipe(fs.createWriteStream(backupPath));
+          });
+        });
       });
     }
   );

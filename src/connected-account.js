@@ -2,7 +2,6 @@
 
 const Mailbox = require('./mailbox');
 const Message = require('./message');
-const util = require('./util');
 const Bluebird = require('bluebird');
 
 module.exports = class {
@@ -60,11 +59,7 @@ module.exports = class {
     return new Promise((resolve, reject) => {
       console.log(`Fetching ${message}...`);
       return this._nodeImap.fetch(message.uid, {bodies: ''})
-        .on('message', message => {
-          // TODO Do we have to convert it to a string if all we do is to save
-          // it to a file?
-          message.on('body', stream => util.streamToString(stream).then(resolve));
-        })
+        .on('message', message => message.on('body', resolve))
         .on('error', reject);
     });
   }
