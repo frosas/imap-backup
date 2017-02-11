@@ -11,18 +11,31 @@ const fs = Bluebird.promisifyAll(require('fs'));
 const config = require('./config');
 const Account = require('./src/account');
 
+const saveMessage = message => {
+  const backupPath = `backup/${message.getBackupPath()}`; 
+  return fs.accessAsync(backupPath).then(
+    () => {
+      console.log(`Skipping ${message} (already saved)`);
+    },
+    () => {
+      console.log(`Fetching ${message}...`);
+      return message.fetchBody().then(body => {
+        console.log(`Saving message to "${backupPath}"...`);
+        return mkdirp(path.dirname(backupPath))
+          .then(() => fs.writeFileAsync(backupPath, body));
+      });
+    }
+  );
+};
+
 new Account(config.imap).connect(account => {
   return Bluebird.mapSeries(account.getMailboxes(), mailbox => {
     if (!(config.mailboxes || []).includes(mailbox.name)) {
       console.log(`Skipping ${mailbox}...`);
       return;
     }
-    console.log(`Getting messages for ${mailbox}...`);
-    return mailbox.getMessages(message => {
-      const backupPath = `backup/${message.getBackupPath()}`; 
-      console.log(`Saving message to ${backupPath}...`);
-      return mkdirp(path.dirname(backupPath))
-        .then(() => fs.writeFileAsync(backupPath, message.body));
+    return mailbox.getMessages().then(messages => {
+      return Bluebird.mapSeries(messages, saveMessage);
     });
   })
 })

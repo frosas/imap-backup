@@ -21,7 +21,13 @@ module.exports = class {
     });
   }
   
+  fetchMessageBody(message) {
+    return this.use(() => {
+      return this._connectedAccount.fetchCurrentMailboxMessageBody(message);
+    });
+  }
+  
   toString() {
-    return this.name;
+    return `mailbox "${this.name}"`;
   }
 }

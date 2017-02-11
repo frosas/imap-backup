@@ -22,6 +22,7 @@ module.exports = class {
   };
   
   useMailbox(mailbox, callback) {
+    console.log(`Opening ${mailbox}...`);
     if (this._selectedMailbox) {
       throw new Error(`Another mailbox (${this._selectedMailbox}) is already in use`);
     }
@@ -31,26 +32,31 @@ module.exports = class {
       .finally(() => this._selectedMailbox = null);
   }
   
-  fetchCurrentMailboxMessages(callback) {
+  fetchCurrentMailboxMessages() {
     return new Promise((resolve, reject) => {
-      console.log(`Retrieving messages...`);
+      console.log(`Retrieving messages in current mailbox...`);
       const messages = [];
-      this._nodeImap.fetch('1:*', {bodies: ''})
+      this._nodeImap.fetch('1:*')
         .on('message', message => {
-          let whenBody, uid;
-          message
-            // TODO Do we have to convert it to a string if all we do is to save
-            // it to a file?
-            .on('body', stream => whenBody = util.streamToString(stream))
-            .on('attributes', attributes => uid = attributes.uid)
-            .on('end', () => {
-              return whenBody.then(body => {
-                callback(new Message(this._selectedMailbox, uid, body))
-              });
-            });
+          message.on('attributes', attributes => {
+            messages.push(new Message(this._selectedMailbox, attributes.uid));
+          });
         })
         .on('error', reject)
         .on('end', () => resolve(messages));
+    });
+  }
+  
+  fetchCurrentMailboxMessageBody(message) {
+    return new Promise((resolve, reject) => {
+      console.log(`Fetching ${message}...`);
+      return this._nodeImap.fetch(message.uid, {bodies: ''})
+        .on('message', message => {
+          // TODO Do we have to convert it to a string if all we do is to save
+          // it to a file?
+          message.on('body', stream => util.streamToString(stream).then(resolve));
+        })
+        .on('error', reject);
     });
   }
 }
