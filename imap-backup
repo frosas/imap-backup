@@ -19,14 +19,19 @@ const saveMessage = message => {
       console.log(`Skipping ${message} (already saved)`);
     },
     () => {
-      return message.fetchBody().then(body => {
-        console.log(`Saving message to "${backupPath}"...`);
-        return mkdirp(path.dirname(backupPath)).then(() => {
-          return new Promise(resolve => {
-            body.on('end', resolve).pipe(fs.createWriteStream(backupPath));
+      return message.fetchBody().then(
+        body => {
+          console.log(`Saving message to "${backupPath}"...`);
+          return mkdirp(path.dirname(backupPath)).then(() => {
+            return new Promise(resolve => {
+              body.on('end', resolve).pipe(fs.createWriteStream(backupPath));
+            });
           });
-        });
-      });
+        },
+        error => {
+          console.error(`Error fetching the message body: ${error}`);
+        }
+      );
     }
   );
 };

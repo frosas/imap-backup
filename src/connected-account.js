@@ -53,9 +53,17 @@ module.exports = class {
   fetchCurrentMailboxMessageBody(message) {
     return new Promise((resolve, reject) => {
       console.log(`Fetching ${message}...`);
+      let messageFound;
       return this._nodeImap.fetch(message.uid, {bodies: ''})
-        .on('message', message => message.on('body', resolve))
-        .on('error', reject);
+        .on('message', message => {
+          messageFound = true;
+          message.on('body', resolve);
+        })
+        .on('error', reject)
+        .on('end', () => {
+          if (!messageFound) reject(new Error(`Message not found`));
+          else reject(new Error(`${message} doesn't have a body`));
+        });
     });
   }
   
