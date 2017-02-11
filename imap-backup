@@ -4,7 +4,7 @@
 
 process.on('unhandledRejection', error => { throw error; });
 
-const BrianWhiteImap = require('imap');
+const Imap = require('imap');
 const Bluebird = require('bluebird');
 const mkdirp = Bluebird.promisify(require('mkdirp'));
 const path = require('path');
@@ -12,7 +12,7 @@ const fs = Bluebird.promisifyAll(require('fs'));
 const config = require('./config');
 
 const useImap = callback => {
-  const imap = Bluebird.promisifyAll(new BrianWhiteImap(config.imap));
+  const imap = Bluebird.promisifyAll(new Imap(config.imap));
   console.log(`Connecting and authenticating...`);
   imap.connect();
   imap.once('ready', () => {
