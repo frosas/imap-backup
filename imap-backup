@@ -18,7 +18,6 @@ const saveMessage = message => {
       console.log(`Skipping ${message} (already saved)`);
     },
     () => {
-      console.log(`Fetching ${message}...`);
       return message.fetchBody().then(body => {
         console.log(`Saving message to "${backupPath}"...`);
         return mkdirp(path.dirname(backupPath))

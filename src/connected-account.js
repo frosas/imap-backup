@@ -3,10 +3,13 @@
 const Mailbox = require('./mailbox');
 const Message = require('./message');
 const util = require('./util');
+const Bluebird = require('bluebird');
 
 module.exports = class {
   constructor(nodeImap) {
     this._nodeImap = nodeImap;
+    this._currentMailbox = null;
+    this._currentMailboxUses = 0;
   }
   
   /**
@@ -22,14 +25,20 @@ module.exports = class {
   };
   
   useMailbox(mailbox, callback) {
-    console.log(`Opening ${mailbox}...`);
-    if (this._selectedMailbox) {
-      throw new Error(`Another mailbox (${this._selectedMailbox}) is already in use`);
+    if (this._currentMailboxUses && this._currentMailbox !== mailbox) {
+      throw new Error(`Another mailbox (${this._currentMailbox}) is already in use`);
     }
-    this._selectedMailbox = mailbox;
-    return this._nodeImap.openBoxAsync(mailbox.name, /* read-only */ true)
+    this._currentMailboxUses++;
+    return Bluebird.resolve()
+      .then(() => {
+        if (this._currentMailbox !== mailbox) {
+          console.log(`Opening ${mailbox}...`);
+          return this._nodeImap.openBoxAsync(mailbox.name, /* read-only */ true)
+            .then(() => this._currentMailbox = mailbox);
+        }
+      })
       .then(callback)
-      .finally(() => this._selectedMailbox = null);
+      .finally(() => this._currentMailboxUses--);
   }
   
   fetchCurrentMailboxMessages() {
@@ -39,7 +48,7 @@ module.exports = class {
       this._nodeImap.fetch('1:*')
         .on('message', message => {
           message.on('attributes', attributes => {
-            messages.push(new Message(this._selectedMailbox, attributes.uid));
+            messages.push(new Message(this._currentMailbox, attributes.uid));
           });
         })
         .on('error', reject)
