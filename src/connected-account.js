@@ -10,9 +10,6 @@ module.exports = class {
   }
   
   /**
-   * Opens every mailbox waiting for callback to finish before moving to the 
-   * next one.
-   * 
    * TODO Iterate them recursively
    */
   getMailboxes(callback) {
