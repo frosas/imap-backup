@@ -26,6 +26,8 @@ const Mailbox = module.exports = class {
     return this._connectedAccount.useMailbox(this, callback);
   }
   
+  // TODO Would this be more responsive by returning the messages in a stream or
+  // an Observable?
   getMessages(callback) {
     return this.use(() => {
       return this._connectedAccount.fetchCurrentMailboxMessages(callback);
