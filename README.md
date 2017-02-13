@@ -9,6 +9,6 @@ $ ./imap-backup
 
 ## TODO
 
-- See `ag '\WTODO\W'`
+- `ag TODO`
 - Locally delete what was remotely deleted
 - Use mailboxex UIDs instead of their names?
