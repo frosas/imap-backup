@@ -67,7 +67,7 @@ module.exports = class {
    */
   _nodeImapMailboxesToFlattenedMailboxes(nodeImapMailboxes, parent) {
     return Object.entries(nodeImapMailboxes).reduce((mailboxes, [name, nodeImapMailbox]) => {
-      const mailbox = new Mailbox(this, name, nodeImapMailbox, parent);
+      const mailbox = new Mailbox(this, name, parent);
       return mailboxes.concat(
         mailbox,
         this._nodeImapMailboxesToFlattenedMailboxes(

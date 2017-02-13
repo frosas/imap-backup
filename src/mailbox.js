@@ -3,10 +3,9 @@
 const nodePath = require('path');
 
 const Mailbox = module.exports = class {
-  constructor(connectedAccount, name, nodeImapMailbox, parent) {
+  constructor(connectedAccount, name, parent) {
     this._connectedAccount = connectedAccount;
     this._name = name;
-    this._nodeImapMailbox = nodeImapMailbox;
     this._parent = parent;
   }
   
