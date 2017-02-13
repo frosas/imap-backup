@@ -1,14 +1,30 @@
 'use strict';
 
+const nodePath = require('path');
+
 module.exports = class {
-  constructor(connectedAccount, name, nodeImapMailbox) {
+  constructor(connectedAccount, name, nodeImapMailbox, parent) {
     this._connectedAccount = connectedAccount;
-    this.name = name;
+    this._name = name;
     this._nodeImapMailbox = nodeImapMailbox;
+    this._parent = parent;
   }
   
-  getBackupPath() {
-    return this.name; // TODO Sanitize it
+  get name() {
+    return this._name;
+  }
+  
+  get fullName() {
+    let fullName = this._name;
+    // TODO Get delimiter from NodeImap#delimiter
+    if (this._parent) fullName = `${this._parent.fullName}/${fullName}`;
+    return fullName;
+  }
+  
+  get backupPath() {
+    let path = this._name; // TODO Sanitize it
+    if (this._parent) path = `${this._parent.backupPath}${nodePath.sep}${path}`;
+    return path;
   }
   
   use(callback) {
@@ -28,6 +44,6 @@ module.exports = class {
   }
   
   toString() {
-    return `mailbox "${this.name}"`;
+    return `mailbox "${this.fullName}"`;
   }
 }

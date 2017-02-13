@@ -11,15 +11,10 @@ module.exports = class {
     this._currentMailboxUses = 0;
   }
   
-  /**
-   * TODO Iterate them recursively
-   */
   getMailboxes(callback) {
     console.log(`Obtaining mailboxes...`);
     return this._nodeImap.getBoxesAsync().then(nodeImapMailboxes => {
-      return Object.entries(nodeImapMailboxes).map(([name, nodeImapMailbox]) => {
-        return new Mailbox(this, name, nodeImapMailbox);
-      });
+      return this._nodeImapMailboxesToFlattenedMailboxes(nodeImapMailboxes);
     });
   };
   
@@ -32,7 +27,7 @@ module.exports = class {
       .then(() => {
         if (this._currentMailbox !== mailbox) {
           console.log(`Opening ${mailbox}...`);
-          return this._nodeImap.openBoxAsync(mailbox.name, /* read-only */ true)
+          return this._nodeImap.openBoxAsync(mailbox.fullName, /* read-only */ true)
             .then(() => this._currentMailbox = mailbox);
         }
       })
@@ -62,5 +57,24 @@ module.exports = class {
         .on('message', message => message.on('body', resolve))
         .on('error', reject);
     });
+  }
+  
+  /**
+   * See getMailboxes()
+   * 
+   * @param {object} nodeImapMailboxes As returned by NodeImap#getBoxes()
+   * @return {array}
+   */
+  _nodeImapMailboxesToFlattenedMailboxes(nodeImapMailboxes, parent) {
+    return Object.entries(nodeImapMailboxes).reduce((mailboxes, [name, nodeImapMailbox]) => {
+      const mailbox = new Mailbox(this, name, nodeImapMailbox, parent);
+      return mailboxes.concat(
+        mailbox,
+        this._nodeImapMailboxesToFlattenedMailboxes(
+          nodeImapMailbox.children || {},
+          mailbox
+        )
+      );
+    }, []);
   }
 }

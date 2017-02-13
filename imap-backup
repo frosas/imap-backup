@@ -12,7 +12,7 @@ const config = require('./config');
 const Account = require('./src/account');
 
 const saveMessage = message => {
-  const backupPath = `backup/${message.getBackupPath()}`; 
+  const backupPath = `backup/${message.backupPath}`; 
   return fs.accessAsync(backupPath).then(
     () => {
       console.log(`Skipping ${message} (already saved)`);

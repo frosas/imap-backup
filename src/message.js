@@ -6,12 +6,12 @@ module.exports = class {
     this.uid = uid;
   }
   
-  fetchBody() {
-    return this.mailbox.fetchMessageBody(this);
+  get backupPath() {
+    return `${this.mailbox.backupPath}/${this.uid}.eml`;
   }
   
-  getBackupPath() {
-    return `${this.mailbox.getBackupPath()}/${this.uid}.eml`;
+  fetchBody() {
+    return this.mailbox.fetchMessageBody(this);
   }
   
   toString() {
