@@ -2,16 +2,12 @@
 
 const nodePath = require('path');
 
-module.exports = class {
+const Mailbox = module.exports = class {
   constructor(connectedAccount, name, nodeImapMailbox, parent) {
     this._connectedAccount = connectedAccount;
     this._name = name;
     this._nodeImapMailbox = nodeImapMailbox;
     this._parent = parent;
-  }
-  
-  get name() {
-    return this._name;
   }
   
   get fullName() {
@@ -45,5 +41,9 @@ module.exports = class {
   
   toString() {
     return `mailbox "${this.fullName}"`;
+  }
+  
+  equals(value) {
+    return value instanceof Mailbox && value.fullName === this.fullName;
   }
 }

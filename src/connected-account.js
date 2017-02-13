@@ -19,7 +19,7 @@ module.exports = class {
   };
   
   useMailbox(mailbox, callback) {
-    if (this._currentMailboxUses && this._currentMailbox !== mailbox) {
+    if (this._currentMailboxUses && !mailbox.equals(this._currentMailbox)) {
       throw new Error(`Another mailbox (${this._currentMailbox}) is already in use`);
     }
     this._currentMailboxUses++;
