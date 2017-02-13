@@ -9,5 +9,5 @@ module.exports = {
     tls: true,
     authTimeout: 60000
   },
-  mailboxes: ['INBOX']
+  mailboxes: ['**', '!Calendar{,/**}', '!Contacts{,/**}']
 }

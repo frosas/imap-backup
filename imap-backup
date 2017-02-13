@@ -10,6 +10,7 @@ const path = require('path');
 const fs = Bluebird.promisifyAll(require('fs'));
 const config = require('./config');
 const Account = require('./src/account');
+const multimatch = require('multimatch');
 
 const saveMessage = message => {
   const backupPath = `backup/${message.backupPath}`; 
@@ -32,7 +33,7 @@ const saveMessage = message => {
 
 new Account(config.imap).connect(account => {
   return Bluebird.mapSeries(account.getMailboxes(), mailbox => {
-    if (!(config.mailboxes || []).includes(mailbox.name)) {
+    if (!multimatch(mailbox.fullName, config.mailboxes).length) {
       console.log(`Skipping ${mailbox}...`);
       return;
     }
