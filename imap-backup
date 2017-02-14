@@ -2,7 +2,9 @@
 
 'use strict';
 
-process.on('unhandledRejection', error => { throw error; });
+process.on('unhandledRejection', error => {
+  throw error;
+});
 
 const Bluebird = require('bluebird');
 const mkdirp = Bluebird.promisify(require('mkdirp'));
@@ -13,7 +15,7 @@ const Account = require('./src/account');
 const multimatch = require('multimatch');
 
 const saveMessage = message => {
-  const backupPath = `backup/${message.backupPath}`; 
+  const backupPath = `backup/${message.backupPath}`;
   return fs.accessAsync(backupPath).then(
     () => {
       console.log(`Skipping ${message} (already saved)`);
@@ -45,5 +47,5 @@ new Account(config.imap).connect(account => {
     return mailbox.getMessages().then(messages => {
       return Bluebird.mapSeries(messages, saveMessage);
     });
-  })
-})
+  });
+});

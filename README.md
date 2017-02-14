@@ -7,6 +7,12 @@ $ yarn
 $ ./imap-backup
 ```
 
+## Development
+
+```bash
+$ bin/lint
+```
+
 ## TODO
 
 - `ag TODO`

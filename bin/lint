@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+base_path="$(dirname $0)/.."
+
+eslint "$base_path" "$base_path/imap-backup"

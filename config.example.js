@@ -7,7 +7,7 @@ module.exports = {
     host: '<host>',
     port: 993,
     tls: true,
-    authTimeout: 60000
+    authTimeout: 60000,
   },
-  mailboxes: ['**', '!Calendar{,/**}', '!Contacts{,/**}']
-}
+  mailboxes: ['**', '!Calendar{,/**}', '!Contacts{,/**}'],
+};

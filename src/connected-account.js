@@ -5,19 +5,31 @@ const Message = require('./message');
 const Bluebird = require('bluebird');
 
 module.exports = class {
+  /**
+   * @param {NodeImap} nodeImap
+   */
   constructor(nodeImap) {
     this._nodeImap = nodeImap;
     this._currentMailbox = null;
     this._currentMailboxUses = 0;
   }
-  
+
+  /**
+   * @param {function} callback
+   * @return {Promise<Array<Mailbox>>}
+   */
   getMailboxes(callback) {
     console.log(`Obtaining mailboxes...`);
     return this._nodeImap.getBoxesAsync().then(nodeImapMailboxes => {
       return this._nodeImapMailboxesToFlattenedMailboxes(nodeImapMailboxes);
     });
   };
-  
+
+  /**
+   * @param {Mailbox} mailbox
+   * @param {function} callback
+   * @return {Promise}
+   */
   useMailbox(mailbox, callback) {
     if (this._currentMailboxUses && !mailbox.equals(this._currentMailbox)) {
       throw new Error(`Another mailbox (${this._currentMailbox}) is already in use`);
@@ -34,7 +46,10 @@ module.exports = class {
       .then(callback)
       .finally(() => this._currentMailboxUses--);
   }
-  
+
+  /**
+   * @return {Promise<Array<Message>>}
+   */
   fetchCurrentMailboxMessages() {
     return new Promise((resolve, reject) => {
       console.log(`Retrieving messages in current mailbox...`);
@@ -49,7 +64,11 @@ module.exports = class {
         .on('end', () => resolve(messages));
     });
   }
-  
+
+  /**
+   * @param {Message} message
+   * @return {Promise<stream.Readable>}
+   */
   fetchCurrentMailboxMessageBody(message) {
     return new Promise((resolve, reject) => {
       console.log(`Fetching ${message}...`);
@@ -66,12 +85,13 @@ module.exports = class {
         });
     });
   }
-  
+
   /**
    * See getMailboxes()
-   * 
-   * @param {object} nodeImapMailboxes As returned by NodeImap#getBoxes()
-   * @return {array}
+   *
+   * @param {NodeImapMailbox} nodeImapMailboxes As returned by NodeImap#getBoxes()
+   * @param {Mailbox} parent
+   * @return {Array<NodeImapMailbox>}
    */
   _nodeImapMailboxesToFlattenedMailboxes(nodeImapMailboxes, parent) {
     return Object.entries(nodeImapMailboxes).reduce((mailboxes, [name, nodeImapMailbox]) => {
@@ -85,4 +105,4 @@ module.exports = class {
       );
     }, []);
   }
-}
+};
