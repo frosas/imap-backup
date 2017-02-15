@@ -17,3 +17,11 @@ $ bin/lint
 
 - `ag TODO`
 - Locally delete what was remotely deleted
+- Why am I getting these errors?
+
+  ```
+  Fetching message 45837 in mailbox "Deleted Items"...
+  Error fetching the message body: Error: Message not found
+  ```
+
+  Should I try with `nodeImap.seq.*` methods?
