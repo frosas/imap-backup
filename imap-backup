@@ -8,7 +8,7 @@ process.on('unhandledRejection', error => {
 
 const Bluebird = require('bluebird');
 const mkdirp = Bluebird.promisify(require('mkdirp'));
-const path = require('path');
+const nodePath = require('path');
 const fs = Bluebird.promisifyAll(require('fs'));
 const config = require('./config');
 const Account = require('./src/account');
@@ -18,28 +18,42 @@ const backupBasePath = process.argv[2] || (() => {
   throw new Error('Backup base path not specified');
 })();
 
-const saveMessage = message => {
-  const backupPath = `${backupBasePath}/${message.backupPath}`;
-  return fs.accessAsync(backupPath).then(
+const fileExists = path => {
+  return fs.accessAsync(path).then(
     () => {
-      console.log(`Skipping ${message} (already saved)`);
+      return true;
     },
     () => {
-      return message.fetchBody().then(
-        body => {
-          console.log(`Saving message to "${backupPath}"...`);
-          return mkdirp(path.dirname(backupPath)).then(() => {
-            return new Promise(resolve => {
-              body.on('end', resolve).pipe(fs.createWriteStream(backupPath));
-            });
-          });
-        },
-        error => {
-          console.error(`Error fetching the message body: ${error}`);
-        }
-      );
+      return false;
     }
   );
+};
+
+const saveMessage = (message, path) => {
+  return message.fetchBody().then(
+    body => {
+      console.log(`Saving message to "${path}"...`);
+      return mkdirp(nodePath.dirname(path)).then(() => {
+        return new Promise(resolve => {
+          body.on('end', resolve).pipe(fs.createWriteStream(path));
+        });
+      });
+    },
+    error => {
+      console.error(`Error fetching the message body: ${error}`);
+    }
+  );
+};
+
+const processMessage = message => {
+  const backupPath = `${backupBasePath}/${message.backupPath}`;
+  return fileExists(backupPath).then(exists => {
+    if (exists) {
+      console.log(`Skipping ${message} (already saved)`);
+    } else {
+      return saveMessage(message, backupPath);
+    }
+  });
 };
 
 new Account(config.imap).connect(account => {
@@ -49,7 +63,7 @@ new Account(config.imap).connect(account => {
       return;
     }
     return mailbox.getMessages().then(messages => {
-      return Bluebird.mapSeries(messages, saveMessage);
+      return Bluebird.mapSeries(messages, processMessage);
     });
   });
 });
