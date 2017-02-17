@@ -4,7 +4,7 @@ Copy `config.example.js` to `config.js` and edit it as needed.
 
 ```bash
 $ yarn
-$ ./imap-backup
+$ ./imap-backup <backup-base-path>
 ```
 
 ## Development

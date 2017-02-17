@@ -14,8 +14,12 @@ const config = require('./config');
 const Account = require('./src/account');
 const multimatch = require('multimatch');
 
+const backupBasePath = process.argv[2] || (() => {
+  throw new Error('Backup base path not specified');
+})();
+
 const saveMessage = message => {
-  const backupPath = `backup/${message.backupPath}`;
+  const backupPath = `${backupBasePath}/${message.backupPath}`;
   return fs.accessAsync(backupPath).then(
     () => {
       console.log(`Skipping ${message} (already saved)`);
