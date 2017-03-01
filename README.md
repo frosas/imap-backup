@@ -1,5 +1,7 @@
 ## Usage
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/frosas/imap-backup.svg)](https://greenkeeper.io/)
+
 Copy `config.example.js` to `config.js` and edit it as needed.
 
 ```bash
