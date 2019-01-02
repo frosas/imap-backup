@@ -13,6 +13,7 @@ const fs = Bluebird.promisifyAll(require('fs'));
 const config = require('./config');
 const Account = require('./src/account');
 const multimatch = require('multimatch');
+const simpleParser = require('mailparser').simpleParser;
 
 const backupBasePath = process.argv[2] || (() => {
   throw new Error('Backup base path not specified');
@@ -47,13 +48,20 @@ const saveMessage = (message, path) => {
 
 const processMessage = message => {
   const backupPath = `${backupBasePath}/${message.backupPath}`;
-  return fileExists(backupPath).then(exists => {
-    if (exists) {
-      console.log(`Skipping ${message} (already saved)`);
-    } else {
-      return saveMessage(message, backupPath);
-    }
-  });
+  return fileExists(backupPath)
+    .then(exists => {
+      if (!exists) return saveMessage(message, backupPath);
+    })
+    .then(() => {
+      // TODO Avoid reading messages that were just saved
+      return fs.readFileAsync(backupPath).then(data => {
+        return simpleParser(data).then(message => {
+          if (!message.date) console.log(message);
+          const timestamp = message.date.getTime() / 1000;
+          return fs.utimesAsync(backupPath, timestamp, timestamp);
+        });
+      });
+    });
 };
 
 new Account(config.imap).connect(account => {
